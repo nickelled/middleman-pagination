@@ -58,11 +58,11 @@ module Middleman
 
       def add_pagination_to(resource, attributes = {})
         in_page_context = InPageContext.new(attributes)
-        resource.add_metadata(locals: { 'pagination' => in_page_context })
+        resource.add_metadata(locals: { 'pagination2' => in_page_context })
       end
       
       def pagination_data(resource, key)
-        keys = [:pagination, key]
+        keys = [:pagination2, key]
 
         [resource.data, resource.metadata[:options]].inject(nil) do |result, data_source|
           result or keys.inject(data_source) { |source, key| source.try(:[], key) }
