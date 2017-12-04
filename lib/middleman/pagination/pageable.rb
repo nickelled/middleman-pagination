@@ -17,8 +17,26 @@ module Middleman
 
       private
 
-      def set(extension_context, resources)
-        OpenStruct.new(resources: resources, data: extension_context.data).instance_eval(&@set)
+      def set(extension_context, resources, index)
+        result = OpenStruct.new(resources: resources, data: extension_context.data).instance_eval(&@set)
+        
+        sort_order = pagination_data(index, :sort_order)
+        sort_by = pagination_data(index, :sort_by)
+        sort_locals_variable = pagination_data(index, :sort_locals_variable)
+
+        if sort_by && sort_order && sort_locals_variable
+          if sort_order == :desc
+            result.sort do |a, b|
+              b.locals[sort_locals_variable.to_sym][sort_by].to_time.to_i <=> a.locals[sort_locals_variable.to_sym][sort_by].to_time.to_i
+            end
+          else
+            result.sort do |a, b|
+              a.locals[sort_locals_variable.to_sym][sort_by].to_time.to_i <=> b.locals[sort_locals_variable.to_sym][sort_by].to_time.to_i
+            end
+          end
+        else
+          result
+        end
       end
 
       def pagination_indexes(resources)
@@ -36,7 +54,7 @@ module Middleman
 
         pageable_context = PageableContext.new(
           per_page: pagination_data(index, :per_page) || 20,
-          set: set(extension_context, resources),
+          set: set(extension_context, resources, index),
           index_resources: [index]
         )
 
